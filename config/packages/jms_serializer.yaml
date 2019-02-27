@@ -1,0 +1,7 @@
+jms_serializer:
+  metadata:
+    cache: file
+    debug: "%kernel.debug%"
+    file_cache:
+      dir: "%kernel.cache_dir%/serializer"
+    auto_detection: true
