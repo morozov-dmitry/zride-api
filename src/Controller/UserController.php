@@ -32,15 +32,12 @@ class UserController extends ApiController
         Request $request,
         UserService $userService,
         UserRepository $userRepository,
-        EntityManagerInterface $entityManager,
         PasswordEncoder $passwordEncoder
     )
     {
         $user = new User();
 
-        $form = $this->createForm(UserType::class, $user, [
-            'entity_manager' => $entityManager,
-        ]);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -60,7 +57,6 @@ class UserController extends ApiController
         Request $request,
         UserRepository $userRepository,
         UserService $userService,
-        EntityManagerInterface $entityManager,
         PasswordEncoder $passwordEncoder
     )
     {
@@ -69,9 +65,7 @@ class UserController extends ApiController
             return $this->respondNotFound();
         }
 
-        $form = $this->createForm(UserType::class, $user, [
-            'entity_manager' => $entityManager,
-        ]);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

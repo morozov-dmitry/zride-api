@@ -19,8 +19,6 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $entityManager = $options['entity_manager'];
-
         $builder
             ->add('name', TextType::class, [
                 'required' => true,
@@ -34,12 +32,6 @@ class UserType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                     new Length(['min'=>3,'max' => 128]),
-//                    new UniqueEntity([
-//                        'fields' => ['login'],
-//                        'entityClass' => new User,
-//                        //'em' => $entityManager,
-//                        //'repositoryMethod' => 'findOneByLogin',
-//                    ])
                 ],
             ])
             ->add('password', PasswordType::class, [
@@ -55,12 +47,6 @@ class UserType extends AbstractType
                     new NotBlank(),
                     new Length(['min'=>3,'max' => 128]),
                     new Email(),
-//                    new UniqueEntity([
-//                        'fields' => 'email',
-//                        'entityClass' => new User,
-//                        'em' => 'default',
-//                        'repositoryMethod' => 'findOneByEmail',
-//                    ])
                 ],
             ])
             ->add('phone', TextType::class, [
@@ -82,9 +68,12 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'constraints'     => [
+                new UniqueEntity(['fields' => ['login']]),
+                new UniqueEntity(['fields' => ['email']]),
+                new UniqueEntity(['fields' => ['skype']]),
+            ],
             'csrf_protection' => false,
         ]);
-
-        $resolver->setRequired('entity_manager');
     }
 }
