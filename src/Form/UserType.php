@@ -35,10 +35,10 @@ class UserType extends AbstractType
                     new NotBlank(),
                     new Length(['min'=>3,'max' => 128]),
 //                    new UniqueEntity([
-//                        'fields' => 'login',
+//                        'fields' => ['login'],
 //                        'entityClass' => new User,
-//                        'em' => 'default',
-//                        'repositoryMethod' => 'findOneByLogin',
+//                        //'em' => $entityManager,
+//                        //'repositoryMethod' => 'findOneByLogin',
 //                    ])
                 ],
             ])

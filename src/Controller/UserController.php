@@ -4,6 +4,8 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Components\Password\PasswordEncoder;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,19 +15,26 @@ class UserController extends ApiController
     /**
      * @Route("/user/{id}", methods="GET")
      */
-    public function index(int $id, UserRepository $userRepository)
+    public function show(int $id, UserRepository $userRepository)
     {
         $user = $userRepository->findOne($id);
         if ($user === null) {
             return $this->respondNotFound();
         }
+
         return $this->respond($userRepository->transform($user));
     }
 
     /**
      * @Route("/user", methods="POST")
      */
-    public function create(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager)
+    public function create(
+        Request $request,
+        UserService $userService,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        PasswordEncoder $passwordEncoder
+    )
     {
         $user = new User();
 
@@ -36,13 +45,7 @@ class UserController extends ApiController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $user = $form->getData();
-
-            $encoded = password_hash($user->getPassword(), PASSWORD_DEFAULT);
-            $user->setPassword($encoded);
-
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $user = $userService->saveUser($form->getData(), $passwordEncoder);
 
             return $this->respond($userRepository->transform($user));
         }
@@ -53,7 +56,13 @@ class UserController extends ApiController
     /**
      * @Route("/user/{id}", methods="POST")
      */
-    public function update(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager)
+    public function update(
+        Request $request,
+        UserRepository $userRepository,
+        UserService $userService,
+        EntityManagerInterface $entityManager,
+        PasswordEncoder $passwordEncoder
+    )
     {
         $user = $userRepository->findOne($request->get('id'));
         if ($user === null) {
@@ -67,13 +76,7 @@ class UserController extends ApiController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $user = $form->getData();
-
-            $encoded = password_hash($user->getPassword(), PASSWORD_DEFAULT);
-            $user->setPassword($encoded);
-
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $user = $userService->saveUser($form->getData(), $passwordEncoder);
 
             return $this->respond($userRepository->transform($user));
         }
@@ -84,17 +87,14 @@ class UserController extends ApiController
     /**
      * @Route("/user/{id}", methods="DELETE")
      */
-    public function delete(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager)
+    public function delete(Request $request, UserService $userService, UserRepository $userRepository)
     {
         $user = $userRepository->findOne($request->get('id'));
         if ($user === null) {
             return $this->respondNotFound();
         }
 
-        $user->setRemovedAt(new \DateTime());
-
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $userService->deleteUser($user);
 
         return $this->respond([]);
     }
