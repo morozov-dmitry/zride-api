@@ -5,13 +5,8 @@ use App\Entity\User;
 use App\Components\Password\PasswordEncoder;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserService extends BaseService
+class UserService extends AbstractService
 {
-    /**
-     * @param \App\Entity\User $user
-     * @return \App\Entity\User
-     */
-
     /**
      * @param \App\Entity\User $user
      * @param \App\Components\Password\PasswordEncoder $passwordEncoder
